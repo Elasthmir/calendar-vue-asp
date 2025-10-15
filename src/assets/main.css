@@ -1,0 +1,23 @@
+@import './base.css';
+
+.main {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+
+}
+
+.title {
+    -webkit-text-stroke: 2px rgb(255, 213, 0);
+    font-size: 128px;
+    color: var(--color-background);
+}
+
+
+
