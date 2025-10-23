@@ -10,4 +10,49 @@
     .v-calendar-daily__interval {
         //height: 70px !important;
     }
+    .form{
+        display: flex;
+        width: 1700px;   
+        justify-content:center;
+        align-items: center;
+        gap: 100px;
+    }
+}
+
+
+.titleTest {
+    font-size: 24px;        
+}
+
+.meta {
+    font-size: 16px;
+    justify-content: center;
+    align-items: center;
+    .notes {
+        display: flex;
+        flex-direction: row;
+        padding-left: 24px;
+        gap: 24px;
+        .tutor {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .triangle {
+            align-items: flex-end;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 0 10px 10px;
+            border-color: transparent transparent #ffffff transparent;
+        }
+    }
+    .icons {
+        width: 12px;
+    }
+}
+.hours {
+    .hour{
+        font-size:20px;
+    }
 }
