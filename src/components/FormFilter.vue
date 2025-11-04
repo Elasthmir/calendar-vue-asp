@@ -1,5 +1,15 @@
 <script setup>
 import { ref, computed, watch, isRef, onMounted, onBeforeUnmount } from 'vue'
+import { useForm } from 'vee-validate'
+import { useMainStore } from '../stores/counter.js'
+
+
+const { resetForm } = useForm()
+function clearAll() {
+    selName.value = selLvl.value = selTutor.value = null
+    resetForm({ values: { selName: null, selLvl: null, selTutor: null } })
+    store.setMessage('')
+}
 
 const props = defineProps({
     names: { type: Array, default: () => [] },
@@ -102,26 +112,68 @@ const filteredRows = computed(() =>
 watch(availableNames, (opts) => { if (selName.value && !opts.includes(selName.value)) selName.value = null })
 watch(availableLvls, (opts) => { if (selLvl.value && !opts.includes(selLvl.value)) selLvl.value = null })
 watch(availableTutors, (opts) => { if (selTutor.value && !opts.includes(selTutor.value)) selTutor.value = null })
+
+const store = useMainStore()
+
+
+watch([selName, selLvl, selTutor], (selName, selLvl, selTutor) => {
+    store.setSelected(
+        selName ?? '',
+        selLvl ?? '',
+        selTutor ?? '',
+    )
+}, { immediate: true })
+
+
+
+
 </script>
 
 <template>
     <!-- bez <v-app> tutaj -->
-    <div class="d-flex flex-column ga-4" style="max-width: 520px">
-        <v-select v-model="selName" :items="availableNames" label="Zajecia" clearable hide-details min-width="320"
-            placeholder="Wybierz..." persistent-placeholder />
-        <v-select v-model="selLvl" :items="availableLvls" label="Poziom" clearable hide-details min-width="320"
-            placeholder="Wybierz..." persistent-placeholder />
-        <v-select v-model="selTutor" :items="availableTutors" label="Trener" clearable hide-details min-width="320"
-            placeholder="Wybierz..." persistent-placeholder />
-
-        <v-card v-if="filteredRows.length">
-            <v-card-text>
-                <div class="text-subtitle-2 mb-2">Dopasowania:</div>
-                <div v-for="(r, i) in filteredRows" :key="i">
-                    {{ r.name }} — {{ r.lvl }} — {{ r.tutor }}
-                </div>
-            </v-card-text>
-        </v-card>
-        <v-alert v-else type="info" variant="tonal">Brak dopasowan.</v-alert>
+    <div class="formAndButton">
+        <div class="form">
+            <v-select v-model="selName" :items="availableNames" label="Zajecia" clearable hide-details min-width="320"
+                placeholder="Wybierz..." persistent-placeholder />
+            <v-select v-model="selLvl" :items="availableLvls" label="Poziom" clearable hide-details min-width="320"
+                placeholder="Wybierz..." persistent-placeholder />
+            <v-select v-model="selTutor" :items="availableTutors" label="Trener" clearable hide-details min-width="320"
+                placeholder="Wybierz..." persistent-placeholder />
+        </div>
+        <div class="button">
+            <v-btn class="self-start" variant="tonal" @click="clearAll" rounded="lg" size="x-large">
+                Wyczysc filtry
+            </v-btn>
+        </div>
     </div>
 </template>
+<style lang="scss" scoped>
+.form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+}
+
+.formAndButton {
+    display: flex;
+    gap: 50px;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    background: var(--color-background);
+    position: sticky;
+    z-index: 1;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    top: 0;
+    left: 0;
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>

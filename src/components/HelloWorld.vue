@@ -1,13 +1,18 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import FormFilter from './FormFilter.vue'
+import { storeToRefs } from 'pinia'
+import { useMainStore } from '../stores/counter.js'
+
+const store = useMainStore()
+const { selected } = storeToRefs(store)
 const calendar = ref()
 
 const typeToLabel = {
-    month: 'Month',
-    week: 'Week',
-    day: 'Day',
-    '4day': '4 Days',
+    month: 'Miesiąc',
+    week: 'Tydzień',
+    day: 'Dzień',
+    '4day': '4 dni',
 }
 const colors = ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1']
 const names = ['Hip-Hop Kids Basic 8–12 lat', 'Hip-Hop Kids Medium 8–12 lat', 'EKC HH Crew', 'Street Ladies Medium Adults', 'Choreo Pro', 'Dance4Kids 3–4 lata', 'Dancehall Kids Medium 8–10 lat', 'Euphoria DH Crew', 'Dancehall Basic Plus 13+', 'Dolasy DH Crew', 'Dancehall Open Choreo', 'Dancehall Kids Basic 5–7 lat', 'Dancehall Kids Basic 8–12 lat', 'Dancehall Freestyle', 'FIREWERKI', 'Formacja DH Pro', 'Hip-Hop Basic 13+', 'Hip-Hop Kids Basic Plus 5–7 lat', 'Hip-Hop Kids Basic 5–7 lat', 'Level Up! HH Crew', 'DELTA', 'Street Fusion Projekt*', 'Deduszki HH Kids Crew 6–7 lat', 'Lions HH Kids Crew 8–11 lat', 'House Dance Basic', 'K-POP Basic Plus 13+', 'House Dance Open', 'ESSA HH Crew', 'MOM&KID 8–12 lat', 'Only For Ladies Medium', 'Ladies Style Choreo Basic Adults',]
@@ -20,7 +25,9 @@ const selectedEvent = ref({})
 const selectedElement = ref(null)
 const selectedOpen = ref(false)
 const events = ref([])
-
+function onSelected(payload) {
+    console.log('Odebrane z child:', payload)
+}
 onMounted(() => {
     calendar.value.checkChange()
 })
@@ -62,7 +69,7 @@ function updateRange({ start, end }) {
     const days = (max.getTime() - min.getTime()) / 86400000
     const eventCount = rnd(days, days + 20)
     for (let i = 0; i < 27; i++) {
-        const allDay = rnd(0, 3) === 0
+        const allDay = 0
         const firstTimestamp = rnd(min.getTime(), max.getTime())
         const first = new Date(firstTimestamp - (firstTimestamp % 900000))
         const secondTimestamp = 3600000                                         //1h jak wiecej to zwiekszyc
@@ -88,6 +95,7 @@ function updateRange({ start, end }) {
 function rnd(a, b) {
     return Math.floor((b - a + 1) * Math.random()) + a
 }
+console.log(selected[0])
 </script>
 
 <template>
@@ -95,22 +103,26 @@ function rnd(a, b) {
         <div class="title">
             <h1>PLAN ZAJĘĆ</h1>
         </div>
+
         <FormFilter :names="names" :lvl="lvl" :tutors="tutors" :events="eventPublicArray" />
+        <p>Parent ma: {{ selected[0] }} {{ selected[1] }} {{ selected[2] }}</p>
         <div class="calendar">
             <v-row class="fill-height">
                 <v-col>
-                    <v-sheet height="64">
-                        <v-toolbar flat>
+                    <v-sheet>
+                        <v-toolbar flat class="days">
                             <v-btn class="me-4" color="grey-darken-2" variant="outlined" @click="setToday">
-                                Today
+                                Dziś
                             </v-btn>
-                            <v-btn color="grey-darken-2" size="small" variant="text" icon @click="prev">
+                            <v-btn color="grey-darken-2" size="small" variant="text" icon @click="prev"
+                                class="v-btn--variant-tonal">
                                 <v-icon size="small"> mdi-chevron-left </v-icon>
                             </v-btn>
-                            <v-btn color="grey-darken-2" size="small" variant="text" icon @click="next">
+                            <v-btn color="grey-darken-2" size="small" variant="text" icon @click="next"
+                                class="v-btn--variant-tonal">
                                 <v-icon size="small"> mdi-chevron-right </v-icon>
                             </v-btn>
-                            <v-toolbar-title v-if="calendar">
+                            <v-toolbar-title v-if="calendar" class="monthName">
                                 {{ calendar.title }}
                             </v-toolbar-title>
                             <v-menu location="bottom end">
@@ -120,18 +132,18 @@ function rnd(a, b) {
                                         <v-icon end> mdi-menu-down </v-icon>
                                     </v-btn>
                                 </template>
-                                <v-list>
+                                <v-list width="120" class="optionList">
                                     <v-list-item @click="type = 'day'">
-                                        <v-list-item-title>Day</v-list-item-title>
+                                        <v-list-item-title>Dzień</v-list-item-title>
                                     </v-list-item>
                                     <v-list-item @click="type = 'week'">
-                                        <v-list-item-title>Week</v-list-item-title>
+                                        <v-list-item-title>Tydzień</v-list-item-title>
                                     </v-list-item>
                                     <v-list-item @click="type = 'month'">
-                                        <v-list-item-title>Month</v-list-item-title>
+                                        <v-list-item-title>Miesiąc</v-list-item-title>
                                     </v-list-item>
                                     <v-list-item @click="type = '4day'">
-                                        <v-list-item-title>4 days</v-list-item-title>
+                                        <v-list-item-title>4 dni</v-list-item-title>
                                     </v-list-item>
                                 </v-list>
                             </v-menu>
@@ -143,7 +155,19 @@ function rnd(a, b) {
                             :first-interval="12" :interval-count="12" weekdays="1,2,3,4,5" color="primary"
                             @change="updateRange" @click:date="viewDay" @click:event="showEvent" @click:more="viewDay">
                             <template #event="{ event, timed, start, end }">
-                                <div class="event-box">
+                                <div class="event-box" :class="{
+                                    active:
+                                        (!selected[0] || selected[0] === event.name) &&
+                                        (!selected[1] || selected[1] === event.lvl) &&
+                                        (!selected[2] || selected[2] === event.tutor),
+
+                                    notActive:
+                                        (selected[0] || selected[1] || selected[2]) && !(
+                                            (!selected[0] || selected[0] === event.name) &&
+                                            (!selected[1] || selected[1] === event.lvl) &&
+                                            (!selected[2] || selected[2] === event.tutor)
+                                        )
+                                }">
                                     <div class="titleTest">{{ event.name }}</div>
                                     <div class="meta">
                                         <div class="hours">
@@ -204,7 +228,7 @@ function rnd(a, b) {
                                 </v-card-text>
                                 <v-card-actions>
                                     <v-btn color="secondary" variant="text" @click="selectedOpen = false">
-                                        Cancel
+                                        Anuluj
                                     </v-btn>
                                 </v-card-actions>
                             </v-card>
@@ -217,11 +241,13 @@ function rnd(a, b) {
 </template>
 <style scoped lang="scss">
 @import "../assets/classes.scss";
+@import "../assets/responsive/base.scss";
 
 
 
 .calendar {
-    width: 1780px;
+    width: 100%;
+    max-width: 1780px;
 }
 
 .v-calendar-daily {
@@ -278,5 +304,58 @@ function rnd(a, b) {
     .v-calendar-daily__interval-text {
         top: -19px;
     }
+
+    .event-box {
+        height: 100%;
+    }
+
+    .v-event-timed {
+        transition: all .5s;
+    }
+
+    .v-event-timed:has(.event-box.Active) {
+        opacity: 1;
+    }
+
+    .v-event-timed:has(.event-box.notActive) {
+        opacity: .35;
+    }
+
+    .v-past {
+        .v-event-timed {
+            background-color: transparent !important;
+            color: white !important;
+            opacity: .35;
+
+            .active {}
+        }
+    }
+
+    .v-toolbar {
+        background: transparent;
+        color: var(--color-text);
+        padding: 10px;
+
+        .v-toolbar__content {
+            gap: 20px;
+        }
+    }
+}
+
+.daysGUI {
+    width: 100%;
+}
+
+.monthName {
+    padding: 50px;
+}
+
+.days {
+    gap: 10px;
+}
+
+.optionList {
+    background-color: var(--color-background);
+    
 }
 </style>

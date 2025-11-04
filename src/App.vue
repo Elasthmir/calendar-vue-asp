@@ -2,22 +2,11 @@
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
 </script>
-
 <template>
   <header>
     <div class="wrapper">
-
-      <nav>
-
-      </nav>
-      <HelloWorld/>
-
+      <HelloWorld />
     </div>
   </header>
-
-
 </template>
-
-<style scoped>
-
-</style>
+<style scoped></style>
