@@ -2,7 +2,10 @@
 import { ref, computed, watch, isRef, onMounted, onBeforeUnmount } from 'vue'
 import { useForm } from 'vee-validate'
 import { useMainStore } from '../stores/counter.js'
+import { useWindowSize } from '@vueuse/core'
 
+const { width, height } = useWindowSize()
+const isVisibleFilters = ref(false)
 
 const { resetForm } = useForm()
 function clearAll() {
@@ -124,14 +127,18 @@ watch([selName, selLvl, selTutor], (selName, selLvl, selTutor) => {
     )
 }, { immediate: true })
 
+function showFilters() {
+    isVisibleFilters.value = !isVisibleFilters.value
 
+}
 
 
 </script>
 
 <template>
     <!-- bez <v-app> tutaj -->
-    <div class="formAndButton">
+
+    <div class="formAndButton" v-if="isVisibleFilters || width > 1000">
         <div class="form">
             <v-select v-model="selName" :items="availableNames" label="Zajecia" clearable hide-details min-width="320"
                 placeholder="Wybierz..." persistent-placeholder />
@@ -146,6 +153,9 @@ watch([selName, selLvl, selTutor], (selName, selLvl, selTutor) => {
             </v-btn>
         </div>
     </div>
+    <v-btn v-if="width <= 1000" class="self-start" variant="tonal" @click="showFilters" rounded="lg" size="x-large">
+        {{ isVisibleFilters ? "Ukryj" : "Pokaż Filtry" }}
+    </v-btn>
 </template>
 <style lang="scss" scoped>
 .form {
